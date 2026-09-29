@@ -5,7 +5,7 @@ FedStay predicts hospital length of stay using machine learning while simulating
 
 ## Project Structure
 - `data/`: Raw dataset and federated site splits.
-- `fedstay_notebook.py`: End-to-end execution pipeline.
+- `main.py`: End-to-end execution pipeline.
 - `results/charts/`: Visualizations including ROC comparisons and feature importance plots.
 - `report.md`: Summary of findings and research utility.
 

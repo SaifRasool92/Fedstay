@@ -1,14 +1,15 @@
 # FedStay: Technical Findings & Performance Report
 
 ## Executive Summary
-FedStay evaluates privacy-preserving machine learning for healthcare length-of-stay (LOS) prediction. The experiment measures performance trade-offs between centralizing patient data versus aggregating predictions across three isolated hospital nodes.
+FedStay provides a simulated federated learning proof-of-concept for healthcare length-of-stay (LOS) prediction. The experiment measures performance trade-offs between centralizing patient data versus aggregating parameters across three simulated hospital nodes. Note that this is a single-process simulation and does not implement network isolation or secure aggregation.
 
 ## Key Empirical Findings
-- **Statistical Significance**: Independent t-tests confirmed patient age ($p < 0.001$) and comorbidity counts ($p < 0.001$) as significant predictors of extended stay.
+- **Statistical Significance**: Independent t-tests confirmed patient age ($p = 8.43 \times 10^{-26}$) and comorbidity counts ($p = 4.12 \times 10^{-28}$) as significant predictors of extended stay in the synthetic dataset.
 - **Privacy Utility Trade-Off**:
-  - **Centralized Model**: Accuracy = ~0.82 | AUC = ~0.86
-  - **Federated Model**: Accuracy = ~0.81 | AUC = ~0.85
-- **Performance Loss**: Under 2% performance drop when using distributed training without centralizing patient datasets.
+  - **Centralized Logistic Regression**: AUC = 0.8143
+  - **Centralized Random Forest Baseline**: Accuracy = 0.6933 | AUC = 0.7654
+  - **Federated Logistic Regression**: Accuracy = 0.7500 | AUC = 0.8152
+- **Performance Loss**: The federated simulation achieved an AUC (0.8152) essentially identical to the centralized Logistic Regression (0.8143).
 
 ## Conclusion
-Federated ensemble strategies match centralized baseline performance within a minor margin while providing raw data privacy across local healthcare environments.
+A simulated federated Logistic Regression approach using weighted parameter averaging matches centralized baseline performance. Further work is required to transition this simulation into a true privacy-preserving deployment.
