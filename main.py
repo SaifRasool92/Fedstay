@@ -133,13 +133,22 @@ def main():
     acc_history, auc_history = [], []
     start_time = time.time()
 
+    # Pre-instantiate local models to actually benefit from warm_start
+    local_models = []
+    for _ in range(len(client_data)):
+        model = LogisticRegression(max_iter=500, solver='saga', random_state=42, warm_start=True)
+        model.classes_ = np.array([0, 1])
+        local_models.append(model)
+        
+    # Pre-instantiate evaluation model
+    eval_model = LogisticRegression()
+    eval_model.classes_ = np.array([0, 1])
+
     for r in range(rounds):
         local_coefs, local_intercepts, sizes = [], [], []
 
-        for X_s, y_s in client_data:
-            local_model = LogisticRegression(max_iter=500, solver='saga', random_state=42, warm_start=True)
-            local_model.fit(X_s, y_s)
-            
+        for i, (X_s, y_s) in enumerate(client_data):
+            local_model = local_models[i]
             local_model.coef_ = global_coef.copy()
             local_model.intercept_ = global_intercept.copy()
             local_model.fit(X_s, y_s)
@@ -148,14 +157,12 @@ def main():
             local_intercepts.append(local_model.intercept_)
             sizes.append(len(X_s))
 
-        total_samples = sum(sizes)
-        global_coef = sum(c * (s / total_samples) for c, s in zip(local_coefs, sizes))
-        global_intercept = sum(i * (s / total_samples) for i, s in zip(local_intercepts, sizes))
+        # Vectorized aggregation using numpy
+        global_coef = np.average(local_coefs, axis=0, weights=sizes)
+        global_intercept = np.average(local_intercepts, axis=0, weights=sizes)
 
-        eval_model = LogisticRegression()
         eval_model.coef_ = global_coef.copy()
         eval_model.intercept_ = global_intercept.copy()
-        eval_model.classes_ = np.array([0, 1])
 
         probs = eval_model.predict_proba(X_test)[:, 1]
         preds = (probs >= 0.5).astype(int)
